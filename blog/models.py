@@ -15,7 +15,7 @@ class User(AbstractUser, UUIDBaseModel):
     bio = models.TextField(blank=True, null=True)
     email = models.EmailField(unique=True, db_index=True)
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['username']
     
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)
