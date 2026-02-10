@@ -96,16 +96,16 @@ REST_FRAMEWORK = {
     # 'DEFAULT_AUTHENTICATION_CLASSES': [
     #     'rest_framework_simplejwt.authentication.JWTAuthentication',
     # ],
-    # 'DEFAULT_THROTTLE_RATES': {
-    #     'low-minute-user': '24/minute',
-    #     'low-second-user': '12/second',
-    #     'public-minute-user': '72/minute',
-    #     'public-second-user': '36/second',
-    #     'pagination-minute-user': '120/minute',
-    #     'pagination-second-user': '60/second',
-    #     'one-per-second': '1/second',
-    #     'five-per-minute': '5/minute',
-    # }
+    'DEFAULT_THROTTLE_RATES': {
+        'low-minute-user': '24/minute',
+        'low-second-user': '12/second',
+        'public-minute-user': '72/minute',
+        'public-second-user': '36/second',
+        'pagination-minute-user': '120/minute',
+        'pagination-second-user': '60/second',
+        'one-per-second': '1/second',
+        'five-per-minute': '5/minute',
+    }
 }
 
 # Password validation
