@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
+from datetime import timedelta
 import os
 from pathlib import Path
 
@@ -41,7 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'core',
-    'blog'
+    'blog',
+    'security',
 ]
 
 # Use the custom user model defined in blog.models.User.
@@ -93,9 +95,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    # 'DEFAULT_AUTHENTICATION_CLASSES': [
-    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
-    # ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
     'DEFAULT_THROTTLE_RATES': {
         'low-minute-user': '24/minute',
         'low-second-user': '12/second',
@@ -110,6 +112,11 @@ REST_FRAMEWORK = {
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
