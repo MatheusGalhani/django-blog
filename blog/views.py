@@ -2,9 +2,11 @@ from django.shortcuts import render
 from rest_framework import viewsets, permissions, mixins, status
 from rest_framework.response import Response
 
+from blog.keys import get_blogpost_cache_key
 from blog.models import BlogPost, User
 from blog.serializers import BlogPostSerializer, UserSerializer
 from core.throttling import FivePerMinuteRateThrottle, PaginationMinuteUserRateThrottle
+from utils.cache import get_cache, set_cache
 
 # Create your views here.
 
@@ -32,7 +34,7 @@ class CreateUserView(viewsets.GenericViewSet, mixins.CreateModelMixin):
 class BlogPostViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, 
                       mixins.CreateModelMixin, mixins.RetrieveModelMixin, 
                       mixins.UpdateModelMixin, mixins.DestroyModelMixin):
-    queryset = BlogPost.objects.all()
+    queryset = BlogPost.objects.select_related('author').all()
     serializer_class = BlogPostSerializer
     permission_classes = [permissions.IsAuthenticated]
     throttle_classes = [PaginationMinuteUserRateThrottle]
@@ -60,6 +62,19 @@ class BlogPostViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
             instance, data=data, partial=partial, context={'request': request})
         if serializer.is_valid():
             serializer.save()
+            key = get_blogpost_cache_key(kwargs['pk'])
+            set_cache(key, serializer.data)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def retrieve(self, request, *args, **kwargs):
+        key = get_blogpost_cache_key(kwargs['pk'])
+        if (cached_data := get_cache(key)) is not None:
+            return Response(cached_data, status=status.HTTP_200_OK)
+        
+        instance = self.get_object()
+        serializer = self.serializer_class(instance)
+        cached_data = serializer.data
+        set_cache(key, cached_data)
+        return Response(cached_data, status=status.HTTP_200_OK)

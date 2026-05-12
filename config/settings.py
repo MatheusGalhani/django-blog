@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from datetime import timedelta
 import os
 from pathlib import Path
+from decouple import config as env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'core',
     'blog',
     'security',
+    'silk'
 ]
 
 # Use the custom user model defined in blog.models.User.
@@ -153,3 +155,22 @@ STATIC_URL = 'static/'
 # STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
 # STATIC_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 # STATICFILES_DIRS = [os.path.join(BASE_DIR, 'staticfiles')]
+CACHE_TTL = (60 * 15)  # 15 minutes in seconds
+DJANGO_REDIS_SCAN_ITERSIZE = 100000
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": env("CACHE_URL"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PASSWORD": env("REDIS_PASSWORD"),
+        },
+        "KEY_PREFIX": "django-api",
+    }
+}
+
+ENABLE_SILK = env("ENABLE_SILK", default=False, cast=bool)
+
+if ENABLE_SILK:
+    MIDDLEWARE += ['silk.middleware.SilkyMiddleware']
